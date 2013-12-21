@@ -1,7 +1,13 @@
 learning-from-patient-safety-incidents
 ======================================
 
+Dissertation submitted in partial fulfilment of the
+Masters of Science in Health Informatics
+University College London
+December 2013
+
 Learning from patient safety incidents: can data mining help?
+=
 
 Abstract
 ==
