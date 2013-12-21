@@ -1,0 +1,212 @@
+\title{\bf Learning from patient safety incidents: \\ can data mining help?} 
+
+\author{Dr Carl J Reynolds \\}
+
+% Don't want date printed
+\date{}
+
+\begin{document}
+ 
+
+\mbox{}
+\thispagestyle{empty}
+\newpage
+
+%\maketitle
+
+\section*{}
+
+
+\begin{center}
+\bf
+
+Centre for Health Informatics and Multiprofessional Education \\
+
+at\\
+
+University College London\\
+
+\vspace{2cm}
+
+Learning from patient safety incidents: \\can data mining help? \\
+
+\vspace{2cm}
+
+by\\
+
+Carl Reynolds\\
+
+\vspace{3cm}
+
+Project Supervisor \\
+
+Paul Taylor\\
+
+\vspace{2cm}
+
+Dissertation submitted in partial fulfilment of the\\
+
+Masters of Science in Health Informatics \\
+
+University College London\\
+
+December 2013\\
+
+
+ 
+\end{center}
+
+
+
+
+
+\begin{comment}
+
+
+Main question: Can the incident reports tell us extra stuff by using data mining techniques?
+
+Paul away from 17th of August
+consider meeting stats lady
+20,000 words by 31st August
+
+Plan of attack
+
+1. Results :-)
+
+any good to run carrot2 on itself? yes
+
+system 1 and cerner look up
+
+move on
+
+anomoly detection and information extraction (named entity recognition, relationships) in rapidminer
+
+svm classification
+
+
+
+nltk corpus analytics
+
+rapid miner templates
+
+example activity - automated identifcation of severes/deaths
+
+if time: play with rapidminer information extraction plugin and make sure have R plugin working and weka9aa
+http://go-pranab.blogspot.co.uk/
+
+present results nicely and send to paul
+
+crack on
+
+
+2. Method
+3. Discussion
+4. Intro and lit rv - recycle NPSA review of alerts for context
+5. Conclusion
+6. Abstract
+7. Check formatting etc
+
+check mat struture
+
+try another data field e.g steps to prevent field or whatever
+
+worth keeping note of 
+http://stackoverflow.com/questions/10477598/comparing-clustering-results-in-carrot2
+http://www.youtube.com/watch?v=TyZjom46yGA	
+http://onlinelibrary.wiley.com/doi/10.1002/pds.3205/abstract?deniedAccessCustomisedMessage=&userIsAuthenticated=false
+http://www.b-eye-network.com/view/8032
+http://www.youtube.com/watch?v=_8HzwQCFFfw&feature=related
+?phd and mike msc for structure + google?
+
+%other resource pharma, misdiagnosis, tb etc - write up
+
+%consider putting in some logging
+
+%consider attribute selection
+
+http://www-ai.cs.tu-dortmund.de/PublicPublicationFiles/jungermann_2009a.pdf - copy stucture
+
+
+\end{comment}
+
+
+\section*{}
+\mbox{}
+\thispagestyle{empty}
+\newpage
+I hereby declare that the work presented in this thesis is my own. 
+
+\vspace{2cm}
+
+Carl Reynolds
+
+\vspace{5cm}
+%Carl Jonathan Reynolds	
+
+\chapter*{Abstract}
+\paragraph{Background}
+To reduce preventable harm to patients health care professionals report unexpected events that harm, or nearly harm, patients. In England and Wales, the National Health Service (NHS) provides standardized patient safety incident report forms for this purpose which are collated nationally by the National Reporting and Learning System (NRLS). To date over seven million patient safety incidents have been reported to the NRLS. The magnitude of this dataset presents a major challenge for the NRLS analytic team. Two key analytic tasks are:
+
+	\begin{enumerate}                                                                                                                                                                                                
+	\item To group similar incidents in order to find common modifiable causes and inform prevention strategies    
+	 \item To classify the severity of incidents occurring in order to prioritize and target remedial efforts                                                                                                                                                                                                        \end{enumerate}
+
+Data Mining(DM), a process that includes the use of machine learning algorithms, is emerging as a useful analysis technique in a diverse range of endeavours that involve large datasets. DM techniques are not yet routinely used in operational patient safety systems but they have shown promise as an analytic tool in a variety of patient safety research settings.
+
+% new opportunity and risk from increasing computer use/digital health care
+
+It is not known whether DM could help the analysis work of the NRLS by, for example, offering efficiency gains, supporting the existing work of analysts, and permitting new insights into this large database. This is examined for a subset of NRLS patient safety incidents that relate to computer use by testing data exploration and auditing tools, the Lingo clustering algorithm, and Naive Bayes (NB) and Stochastic Gradient Descent (SGD) incident severity classifiers.
+
+
+\paragraph{Methods}
+A database extraction, transform, and load (ETL) approach was used as a precursor to performing cluster analysis and building an incident severity classifier.
+
+Incidents reported as occurring between 1\ensuremath{^{st}} January 2002 and 1\ensuremath{^{st}} March 2012 and classified as concerning computer systems were extracted from the NRLS database. 
+
+Data were cleaned and selected fields (incident free text description and severity of incident) were converted to csv and xml data formats for subsequent analysis using Apache Solr, Scikit-learn and NLTK (csv), and Carrot2 (xml). Preprocessing techniques including stemming, tokenization, tagging, and filtering. 
+
+Extracted data were audited using Python Brewery and validated by searching for known patterns of interest using Grep, Google Refine, and Apache Solr. Data were loaded into NLTK for lexical analysis, Apache Solr to search for strings of interest for validation, Carrot2 platform to perform cluster analysis, and Scikit-learn in order to construct severity classifiers.
+
+Lingo (a clustering algorithm based on singular value decomposition) was employed within the Carrot2 platform to perform cluster analysis on selected data. NB and SGD incident severity classifiers were tuned using a grid search strategy and evaluated using cross validation.
+
+
+\paragraph{Results}
+Between 1\ensuremath{^{st}} January 2002 and 1\ensuremath{^{st}} March 2012 7273 incidents were classified by NPSA staff as belonging to ``Infrastructure (including staffing, facilities, environment)'' (incident category level 1) and ``IT / telecommunications failure / overload'' (incident category level 2) categories. Incidents reported to have caused no harm were the most common (n = 5982). Incidents causing death (n = 7) or severe harm (n = 62) were less common. The detail provided by reporters when describing incidents varied considerably. The median number of words in the free text incident description field (IN07) was 25 and the range spanned 1-738 (this was a mandatory field). 
+
+Evidence of poor systems reliability and problems not being fixed promptly were identified as themes by manual search using Grep, Solr and NLTK. Being unable to carry out a task because of computer systems failure, and problems relating to hospital bleep system failure were identified as themes using the lingo clustering algorithm.
+
+Optimised NB and SGD incident severity classifiers performed similarly at predicting incident severity class from free text incident descriptions. NB classifier: precision =  0.76, recall = 0.83, f1-score = 0.77. SGD classifier: precision = 0.78, recall = 0.84, f1-score = 0.77.
+
+
+\paragraph{Conclusion}
+DM can offer a valuable additional technique for the patient safety analyst. 
+
+With the increasing digitisation of health care demonstration of utility may be more easily obtained when reporting, expert analysis, and action are more closely integrated into tighter feedback loops. For example a classifier used to predict prescription error might be constructed and tied to a prevention intervention with the goal of reducing the rate of a specific measurable harm occurring. 
+
+For the subset of patient safety incidents relating to computer use considered, the application of DM methods suggests that the NRLS system does not result in the timely resolution of safety issues. For safety incidents due to computer problems, and possibly other types of safety incident, lessons might be learned from more general approaches to, and cultures of, systems improvement. In particular, the more open and action focussed approach to improving quality present in bug reporting systems found in the open source software community has intuitive appeal.
+
+\paragraph{Key words} Health Information Systems, Patient Safety, Artificial Intelligence, Risk Management, Data Mining
+
+\tableofcontents
+
+\newpage
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Acknowledgements}
+  
+\newpage
+\section*{Acknowledgements}
+I would like to thank my supervisor Dr Paul Taylor for his patient criticism and guidance. I am grateful to Sir Liam Donaldson and the National Patient Safety Agency for supporting and encouraging me through the early stages of this work. I owe a large debt to the open source software community for making, and documenting, the tools used in this thesis. Without the open source community this project would have been impossible. Finally, I am truly thankful to Ross Jones, my friend and business partner, who has been a rich source of ideas, guidance, and practical advice.
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{List of Tables}
+\listoftables
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
+
+\pagestyle{fancy}

@@ -1,0 +1,93 @@
+\chapter{Discussion}
+
+\section{Results}
+Google-refine and Python Brewery facilitated a rapid and useful assessment of data quality. Clustering reports with the lingo algorithm and identifying bigrams and trigrams yielded interesting results which could then rapidly be investigated further with Grep, the Apache Solr search engine and regular expressions in Python NLTK.
+
+For example, problems concerning bleep system failure and problems around being unable to access information were both identified with clustering and NLTK (see sections \ref{lingoresults}, \ref{bleepproblemexamples}, and \ref{unabletosnippetsresults}) and have been identified as useful categories in the literature.\cite{Magrabi2012} Ongoing problems with health IT were also identified as a theme which may be useful to help build the case for rethinking the management models used to manage these systems. This resonates with the observations regarding ongoing issues and failure of the market to ensure safe health IT discussed in the literature review (see sections \ref{marketfail} and \label{intractable}).
+
+The clusters resulting from the application of the lingo algorithm were impressive but by no means perfect. The selected excerpts from incidents in the most reliable cluster, bleep problems, demonstrates the mixed success of the approach. While bleep problems were automatically identified as a meaningful category and the majority of incidents in the cluster did appear to be primarily about problems with the bleep system, some only mention the bleep system in passing and for some it is unclear what role the bleep system plays in the incident (see section \ref{bleepproblemexamples}).
+
+Overall, the performance achieved by the classifiers built and tested to classify severity of harm from free text incident descriptions in this thesis was disappointing (see section \ref{classificationresults}). With optimal parameters the two most successful algorithms, the Natural Bayes and Stochastic Gradient Descent incident severity classifiers, performed similarly. Natural Bayes classifier: precision =  0.76, recall = 0.83, f1-score = 0.77. Stochastic Gradient Descent classifier: precision = 0.78, recall = 0.84, f1-score = 0.77. Performance was much worse for the prediction of the class labels 'Death' and 'Severe'. This is probably a function of how uncommon these incidents were in the dataset, either there were an insufficiently large number of incidents in these classes to train an accurate classifier and/or the incidents in these classes were insufficiently different from the incidents in other classes. 
+
+The disappointing performance achieved may be because of a relative lack of technical expertise of the author for the task, the sample size, or because the task is impossible. The experience of others would suggest the task is not impossible.\cite{Ong2012} 
+
+Training in, and use of, modern tools such as Google-refine, Python Brewery, Carrot2, Apache Solr, and NLTK, would be likely to improve efficiency and augment analysis capacity beyond that achieved with current tools at the NPSA. In particular, addressing data quality issues using google-refine and python brewery is a relatively straightforward task that could substantially improve the quality of subsequent analysis. The Apache Solr search engine could also be especially useful since the interface and behaviour is familiar to those who have used google search and it is much faster than the Excel SAS plugin currently used and would permit a more interactive interrogation of the database.
+  
+Beyond potentially freeing up analysis time it is unclear whether the data mining methods tested could assist the discovery of new useful knowledge. 
+
+A major limitation of the overall taxonomy-classification approach is the tendency for incidents, once classified, to be reduced to being no more than members of their category, losing the richness provided by the detail of the report.\cite{Billings1998} This is potentially especially troublesome when categories are very crude. For example, some authors have reduced computer software safety issues into the following categories:\cite{Magrabi2012}
+\begin{enumerate}
+ \item software functionality
+ \item software system configuration
+ \item software interface with devices
+ \item network configuration
+\end{enumerate}
+
+The categories may be apt but they make a sorry comparison with the routine incident (bug) reporting found online for open source software projects (see section \ref{bugreportinglit}) where it is the norm to provide a very detailed description of what occurred and the circumstances in which the event is reproducible. These information reports contain actionable information and classification is limited to a severity assessment and status (fixed yet or not fixed). Possibly, this contrast points to the value of community and peer production fostered by openness and engagement but also to the importance of tying more closely incident reports to positive action, and suggests the need for a technological and cultural shift.
+
+Of note the severity assessments seen in bug reporting systems tend to have fewer than the five categories seen in NRLS patient safety reporting. The optimum number of categories may well be fewer than five and this should be investigated further.
+
+It has been observed that much effort in health care is devoted to defining the incidents that should be reported and devising classification systems to capture them. Classification itself will not necessarily produce useful safety information, indexing should be used as a tool in analysis; the classification system it represents should not be the sole analysis carried out.\cite{Billings1998}\cite{Vincent2007} The more dynamic interaction with a large body of data permitted by data mining may help to safeguard against this being the case. 
+
+
+\section{Limitations}
+The major limitation of this work is that while the author has the advantage of domain expertise in medicine and patient safety he is far from being a professional statistician or computer programmer and, acting alone, no doubt vulnerable to methodological oversights and errors. 
+
+The data sample was obtained by a category search and it is well recognized that a proportion of incidents will be incorrectly classified. \cite{Pronovost2011}\cite{Cassidy2011} However, searching by category did avoid the nuances of searching by spelling variant within a database for which spellings have not been reconciled.
+
+Under-reporting is an issue known to affect all patient safety reporting and learning systems and is related partly to the lack of routine feedback given to those who report.\cite{Shojania2008}\cite{Sari2007} With respect to computer related problems undereporting may be especially common where safety incidents occur because of systems which are inadequate but do not malfunction.\cite{Koppel2010}
+
+The quality of reports varies hugely with fields being frequently left empty or insufficiently detailed (see section \ref{dataqualityresults}). For example here are the incident descriptions which contained less that four 'tokens' (a token is a word or punctuation).
+
+\begin{pyverbatim}
+See above .
+Computer crashed .
+As above .
+System failure .
+test datix .
+Unknown .
+Computer fault .
+\end{pyverbatim} 
+
+It may also be that is some instances the person reporting the incident lacks an understanding of what happened resulting in an inadvertently misleading report.\cite{Cassidy2011} Possibly a lack of understanding, may also be responsible for the infrequency with which the fields ``Apparent Causes'' and ``Actions Preventing Re-occurence'' were completed (see section \ref{dataqualityresults}).
+
+
+\begin{comment}
+
+http://ars.to/OuOYPi netflix chaos monkey
+
+Discovering useful new knowledge without expert input is a 
+Classification does involve a type of analysis but a type that greatly
+constrains the insights that can be obtained from the data.  Typically, when
+classification systems are used as the analysis, a report of an incident is
+assigned, through a procedure or set of criteria, into one or another fixed
+category. The category set is thought to capture or exhaust all of the
+relevant aspects of failures.  Once the report is classified the narrative
+is lost or downplayed.  Instead, tabulations are built up and put into
+statistical comparisons. Put simply, once assigned to a single category, one
+event is precisely, and indistinguishably like all the others in that category.  \cite{Billings1998}
+Current market forces are not adequately addressing the potential risks associated with use of health IT.\cite{nationalization}
+
+\end{comment}
+
+
+\section{Evaluation of data mining}
+\subsection{Data mining evaluation criteria}
+Traditionally, evaluation methods include objective assessments such as the calculation a classifier's \gls{accuracy}, \gls{precision}, \gls{recall}, and \gls{F-score}. 
+
+In practice, data mining is evaluated by the usefulness of the insights generated to the organization or individual who invests in it. In the world of business `usefulness' or return on investment may be quantified objectively on a balance sheet. \cite{Hand2001}\cite{Bentham2012} 
+
+Unless the outcomes of the data mining process are objectively compared with existing processes, or the data mining process is tied to an intervention which affects a measurable outcome, then objective demonstration of the value of data mining is hard and depends on the subjective assessment of whether value has been added by domain experts.\cite{Ong2010}\cite{Ong2012}\cite{Bentham2012}
+
+\section{Future applications}
+Health IT has been recognized as an important source of patient safety incidents and there have been calls for a national EMR adverse event monitoring system in America.\cite{Sittig2010} The case for iteration and continuous improvement and monitoring of health IT systems, and the relationship between poor usability and safety issues, has been well made. \cite{Walker2008}\cite{Huckvale2010}\cite{Johnson2006}\cite{Caldwell2011} With appropriate data capture and analysis health IT safety issues should be particularly amenable to data mining techniques coupled with software and hardware fixes.
+
+When the move to electronic medical records is achieved, records could be routinely monitored to detect and act on safety incidents in near real time.\cite{Bates2003} Richer data capture may permit more useful classifiers which are tied to appropriate trigger responses.\cite{Govindan2010}\cite{Singal2012}
+
+This may be to prevent a harm directly, or indirectly, to assist in prioritization of incidents, and encourage reporting by giving feedback. For example, a user may be informed of the risk present by the system when he or she is performing a task classified as high risk. 
+
+For example, the constellation of a junior doctor prescribing something they've never prescribed before, to a frail elderly patient with complex comorbidities, at two in the morning may be a particularly error prone situation. Classifiers may allow automated identification of non-trivial high risk occasions which would permit controlled experimentation around linking the classifier to an effective intervention (one that prevents harm).
+
+Another application would be a free text severity classifier which, trained effectively with a sufficiently large dataset, could be employed to inform action, and provide feedback to a user when they submit a report, encouraging reporting and reducing the rate of incorrect classification.\cite{Pronovost2011} \cite{Cassidy2011}\cite{Ong2012}\cite{Shojania2008}\cite{Ong2012}
+
+

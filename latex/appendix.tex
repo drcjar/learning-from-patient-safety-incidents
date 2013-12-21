@@ -1,0 +1,1225 @@
+\glsaddall	
+\printglossaries
+
+
+\appendix
+
+
+\chapter{Tools used}
+\begin{itemize}
+ \item SAS Excel plugin
+ \item Python with NLTK, Brewery, Scikit-learn, and Matplotlib modules
+ \item Carrot2
+ \item RapidMiner with the text processing and named entity recognition plugins
+ \item Apache Solr
+ \item Google Refine
+ \item Kile \LaTeX editor
+ \item Jabref reference manager
+ \item \LaTeX with bibtex, pythontex and several other packages
+ \item Vim
+ \item Ubuntu Linux
+\end{itemize}
+
+%\chapter{Data supplement}
+
+%\section{XML files}
+%file:///home/sam/computer-problems-clusters.xml
+%file:///home/sam/bleep-prob.xml
+%file:///home/sam/bleep.xml
+%file:///home/sam/crash-prob.xml
+%file:///home/sam/cerner-clusters.xml
+%file:///home/sam/systemone-clusters.xml
+%file:///home/sam/ongoingproblems.xml
+
+
+%\section{XML style sheets}
+%bleepprob.xsl  
+%carrot2clusters.xsl   
+%computers.xsl   
+%example.xsl
+%bleep.xsl       
+%computerproblems.xsl  
+%crashprob.xsl  
+%solrresults.xsl
+
+
+\chapter{Source code}
+
+\section{Python code}
+\label{pythoncode}
+
+\subsection{lexicalanalysis.py}
+\label{lexical_analysis.py}
+\begin{pyverbatim}
+#Adapted from code examples in S. Bird, E. Klein, and E. Loper. 
+#Natural language processing with Python. O’Reilly Media, 2009
+#Takes a text file and tokenizes it words, converts to lower case, 
+#filters stop words, builds vocab for text, calculates lexical diversity, 
+#builds collocation, builds frequency distribution of most common words, 
+#builds example dispersion plot of words of interest 
+#(manually entered below in this script), displays results 
+
+#lexical_analysis.py
+
+
+import nltk
+from nltk.corpus import stopwords
+from sys import argv
+
+script, inputfilename = argv #takes whatever filename you pass in
+
+print inputfilename
+
+raw = open("%s" % inputfilename).read()
+
+
+#loads incident descriptions identified as being due to computer problems
+
+tokens = nltk.wordpunct_tokenize(raw) #tokenizes free text
+
+#tokens = [nltk.PorterStemmer().stem(t) for t in tokens] 
+# uncomment to stem tokens
+
+#tokens = [nltk.WordNetLemmatizer().lemmatize(t) for t in tokens]
+# uncomment to lemmatize tokens
+
+text = nltk.Text(tokens) #defines text
+
+words = [w.lower() for w in text] 
+#defines words and makes all words lower case
+
+filtered_words = [w for w in words if w not in stopwords.words('english')] 
+#removes commonly occurring words ("stop words")
+
+vocab = sorted(set(words)) #defines vocabulary
+
+def lexical_diversity(text): #calculate lexical diversity
+    return len(text) / len(set(words))
+
+print "the number of words in the text is %d" % len(text)
+
+print "the number of words in the vocabulary is %d" % len(vocab) 
+
+print "lexical diversity is %d" % lexical_diversity(text) 
+#prints lexical diversity
+
+text.collocations() #builds collocations
+
+fdist = nltk.FreqDist(ch.lower() for ch in filtered_words if ch.isalpha())
+
+fdist.plot(50, cumulative=True) 
+#prints a cumulative frequency distribution 
+#of the 50 most commonly used words in the text
+
+text.dispersion_plot(["computer", "system", "crash", "bleep", "patient"]) 
+#example dispersion plot using arbitary search terms
+\end{pyverbatim}
+
+\subsection{mrchunk.py}
+\label{mrchunk.py}
+\begin{pyverbatim}
+#takes a raw text file and extracts noun phrases to
+#(hopefully) discover interesting relationships
+#mrchunk.py
+
+import nltk
+import nltk.tag
+from nltk.tokenize import word_tokenize, wordpunct_tokenize, sent_tokenize
+from sys import argv
+
+
+script, inputfilename = argv
+
+raw = open("%s" % inputfilename).read()
+
+sentences = sent_tokenize(raw)
+
+wordsenttoke = [word_tokenize(t) for t in sent_tokenize(raw)]
+
+chunks = nltk.tag.batch_pos_tag(wordsenttoke)
+
+patterns =  "NP:{<DT>?<JJ>*<NN>}"
+#DT = determiner e.g the (optional)
+#JJ = adjective e.g big (can have any number of adjectives)
+#NN = noun e.g dog
+
+NPChunker = nltk.RegexpParser(patterns)
+
+nplist = []
+
+
+def sub_leaves(tree, node):
+    return [t.leaves() for t in tree.subtrees
+    (lambda s: s.node == node)]
+
+#a tree traversal function for extracting NP chunks in the parsed tree
+def chunk(patterns):
+    for sent in chunks:
+        tree = NPChunker.parse(sent)
+        for subtree in tree.subtrees():
+            if subtree.node == 'NP':
+                print subtree
+                nplist.append(subtree)
+chunk(patterns)
+
+print len(nplist)
+
+ne_chunks = nltk.batch_ne_chunk(nplist) 
+
+print ne_chunks #print all chunks
+
+#print chunks tagged as people
+for i in range(len(ne_chunks)):
+    tree = ne_chunks[i]
+    print 'PERSON'
+    print sub_leaves(tree, 'PERSON')
+
+#print chunks tagged as orgs
+for i in range(len(ne_chunks)):
+     tree = ne_chunks[i]
+     print 'ORGANIZATION' 
+     print sub_leaves(tree, 'ORGANIZATION')
+
+#print chunks tagged as 
+#geo-political entities 
+for i in range(len(ne_chunks)):
+     tree = ne_chunks[i]
+     print 'GPE' 
+     print sub_leaves(tree, 'GPE')
+
+#fdist = nltk.FreqDist(nplist)
+#fdist.plot(50, cumulative=True)
+
+\end{pyverbatim}
+
+\subsection{unableanalysis.py}
+\label{unable_analysis.py}
+\begin{pyverbatim}
+#takes a text file and returns
+#a frequency distribution plot of
+#the 50 most common words to follow
+#the expression ``unable to''
+#unable_analysis.py
+
+import nltk
+
+raw = open('computers.csv').read()
+
+tokens = nltk.wordpunct_tokenize(raw)
+
+text = nltk.Text(tokens)
+
+text.concordance("unable", width=40, lines=100)
+
+text.findall("<unable><to><.*><.*>")
+
+words = [w.lower() for w in text]
+
+c = nltk.ConcordanceIndex(text.tokens)
+
+unableset = [text.tokens[offset+2] for offset in c.offsets('unable')]
+
+print len(unableset)
+
+words = [w.lower() for w in unableset]
+
+vocab = sorted(set(words))
+
+print len(vocab)
+
+fdist = nltk.FreqDist(unableset)
+
+fdist.plot(50, cumulative=False)
+
+fdist.items()[:10] #prints a list of the top 10
+
+print vocab
+
+
+\end{pyverbatim}
+
+\subsection{csv2xml.py}
+\label{csv2xml.py}
+\begin{pyverbatim}
+ #selects free text incident description column from .csv and
+ #creates a Carrot2 .xml input file
+ #csv2xml.py
+
+ # -*- coding: utf-8 -*-
+import sys,csv
+from xml.dom.minidom import Document
+
+def convert(input_file, output_file, header, query_text):
+    print 'Reading: ', input_file
+    print 'Writing: ', input_file
+    print 'Data in: ', header
+
+    doc = Document(  )
+    results = doc.createElement("searchresult")
+    doc.appendChild(results)
+    query = doc.createElement("query")
+    query.appendChild( doc.createTextNode(query_text) )
+    results.appendChild( query )
+
+    count = 0
+    checked_header = False
+
+    with open(input_file, 'Ur') as f:
+        reader = csv.DictReader(f)
+        for row_dict in reader:
+            if not checked_header and header not in row_dict:
+                print ("Unable to locate column named %s, check case and "
+                         "header row in CSV" % header)
+                sys.exit(1)
+            checked_header = True
+
+            results.appendChild( create_doc_element( doc, query_text,
+                                                    row_dict[header], count ) )
+            count = count + 1
+
+    with open(output_file, "wb") as f:
+        f.write( doc.toprettyxml(indent="  ", encoding="UTF-8") )
+
+def create_doc_element(doc, title_text, text, id):
+    n = doc.createElement('document')
+    n.setAttribute("id", str(id))
+
+    title = doc.createElement('title')
+    title.appendChild( doc.createTextNode( title_text ) )
+
+    url = doc.createElement('url')
+    url.appendChild( doc.createTextNode( "http://localhost/" ) )
+
+    snippet = doc.createElement('snippet')
+    snippet.appendChild( doc.createTextNode( text ) )
+
+
+    n.appendChild( title )
+    n.appendChild( url )
+    n.appendChild( snippet )
+    return n
+
+"""  <document id="0">
+    <title>default</title>
+    <url>http://www.globe.com.ph/</url>
+    <snippet>
+      Provides mobile communications (GSM) including
+      GenTXT, handyphones, wireline services, an
+      broadband Internet services.
+    </snippet>
+  </document>
+  <document id="1">
+    <title>Skate Shoes by Globe | Time For Change</title>
+    <url>http://www.globeshoes.com/</url>
+    <snippet>
+      Skaters, surfers, and showboarders
+      designing in their own style.
+    </snippet>
+  </document>
+
+  ...
+
+</searchresult>
+"""
+
+if __name__ == '__main__':
+    if len(sys.argv) != 4:
+        print """
+Usage:
+    python csv_to_xml.py <input file> <col name> <query text>
+
+  i.e.
+    python csv_to_xml.py input.xml IN07 "computer failures"
+
+  You need to specify the input file and the column name, and don't
+  forget to trim any junk before the header fields. Also don't forget to
+  quote query text if it has spaces"""
+        sys.exit(1)
+
+    convert( sys.argv[1], sys.argv[1] + '.xml', sys.argv[2], sys.argv[3])
+\end{pyverbatim}
+
+\subsection{incidentsplit.py}
+\label{incidentsplit.py}
+\begin{pyverbatim}
+ 
+#takes an input csv and splits it into a training.csv and testing.csv. 
+#we do this to avoid overfitting when training classifiers.
+#incidentsplit.py
+
+import os
+import csv
+
+csvfile = csv.reader(open('computer_problems_IN07_and_category.csv', 'rb'))
+
+trainingf = open('training.csv', 'wb')
+testingf = open('testing.csv', 'wb')
+
+trainingw = csv.writer(trainingf)
+testingw = csv.writer(testingf)
+
+#categories
+#categories = ['train', 'test']
+
+#set up a random index to split the files in 2:1 ratio
+import numpy as np
+from numpy.random import RandomState
+
+n_samples = 7273 #number of rows in csv sample file
+
+indices = np.arange(n_samples)
+RandomState(42).shuffle(indices)
+split = (n_samples * 2) / 3
+
+#iterate through input file, split it, and write to two new files
+for row in csvfile:
+        if csvfile.line_num in indices[:split]:
+            #category = 'train'
+            trainingw.writerow(row)
+        elif csvfile.line_num in indices[split:]: 
+            #category = 'test'
+            testingw.writerow(row)
+
+trainingf.close()
+testingf.close()
+
+
+\end{pyverbatim}
+
+\subsection{incidentextract.py}
+\label{incidentextract.py}
+\begin{pyverbatim}
+#takes a csv and prints incident desc from row to pre-made folder
+#matching severity of incident
+#incidentextract.py
+
+import os
+import csv
+
+#set up category directories
+#dirname = 'category'
+#if not os.path.exists(dirname):
+#        os.makedirs(dirname)
+
+#open csv file
+csvfile = csv.reader(open('training.csv', 'rb')) #manually set this presently
+
+#categories
+#categories = ['Death', 'Severe', 'Moderate', 'Low', 'No Harm']
+
+#set up row
+i = 0
+
+for row in csvfile:
+        if row[1] == 'Death':
+            category = 'Death' 
+            #set incident report name 
+            incident = category + str(i)
+            print incident
+            #set where will write incidents to
+            completeName = os.path.abspath('./%s/%s' % (category, incident))
+            #open file to write incident to
+            f = open(completeName, 'w')
+            #write to file
+            f.write(row[0])
+            #close file
+            f.close()
+            i = i + 1
+        
+        elif row[1] == 'Severe':
+            category = 'Severe'
+            incident = category + str(i)
+            print incident
+            completeName = os.path.abspath('./%s/%s' % (category, incident))
+            f = open(completeName, 'w')
+            f.write(row[0])
+            f.close()
+            i = i + 1
+
+        elif row[1] == 'Moderate':
+            category = 'Moderate'
+            incident = category + str(i)
+            print incident
+            completeName = os.path.abspath('./%s/%s' % (category, incident))
+            f = open(completeName, 'w')
+            f.write(row[0])
+            f.close()
+            i = i + 1
+
+        elif row[1] == 'Low':
+            category = 'Low'
+            incident = category + str(i)
+            print incident
+            completeName = os.path.abspath('./%s/%s' % (category, incident))
+            f = open(completeName, 'w')
+            f.write(row[0])
+            f.close()
+            i = i + 1
+
+        elif row[1] == 'No Harm':
+            category = 'NoHarm'
+            incident = category + str(i)
+            print incident
+            completeName = os.path.abspath('./%s/%s' % (category, incident))
+            f = open(completeName, 'w')
+            f.write(row[0])
+            f.close()
+            i = i + 1
+\end{pyverbatim}   
+
+\subsection{classifierselection.py}
+\label{classifierselection.py}
+\begin{pyverbatim}
+#20 newsgroup example adapted to use computer problem data
+#classifierselection.py
+
+"""
+======================================================
+Classification of text documents using sparse features
+======================================================
+
+This is an example showing how scikit-learn can be used to classify documents
+by topics using a bag-of-words approach. This example uses a scipy.sparse
+matrix to store the features and demonstrates various classifiers that can
+efficiently handle sparse matrices.
+
+The dataset used in this example is the 20 newsgroups dataset. It will be
+automatically downloaded, then cached.
+
+The bar plot indicates the accuracy, training time (normalized) and test time
+(normalized) of each classifier.
+
+"""
+
+# Author: Peter Prettenhofer <peter.prettenhofer@gmail.com>
+#         Olivier Grisel <olivier.grisel@ensta.org>
+#         Mathieu Blondel <mathieu@mblondel.org>
+#         Lars Buitinck <L.J.Buitinck@uva.nl>
+# License: Simplified BSD
+
+from __future__ import print_function
+
+import logging
+import numpy as np
+from optparse import OptionParser
+import sys
+from time import time
+import pylab as pl
+import sklearn #so can use own data
+
+from sklearn.datasets import fetch_20newsgroups 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import HashingVectorizer
+from sklearn.feature_selection import SelectKBest, chi2
+from sklearn.linear_model import RidgeClassifier
+from sklearn.svm import LinearSVC
+from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import Perceptron
+from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import NearestCentroid
+from sklearn.utils.extmath import density
+from sklearn import metrics
+
+
+# Display progress logs on stdout
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(message)s')
+
+
+# parse commandline arguments
+op = OptionParser()
+op.add_option("--report",
+              action="store_true", dest="print_report",
+              help="Print a detailed classification report.")
+op.add_option("--chi2_select",
+              action="store", type="int", dest="select_chi2",
+              help="Select some number of features using a chi-squared test")
+op.add_option("--confusion_matrix",
+              action="store_true", dest="print_cm",
+              help="Print the confusion matrix.")
+op.add_option("--top10",
+              action="store_true", dest="print_top10",
+              help="Print ten most discriminative terms per class"
+                   " for every classifier.")
+op.add_option("--all_categories",
+              action="store_true", dest="all_categories",
+              help="Whether to use all categories or not.")
+op.add_option("--use_hashing",
+              action="store_true",
+              help="Use a hashing vectorizer.")
+op.add_option("--n_features",
+              action="store", type=int, default=2 ** 16,
+              help="n_features when using the hashing vectorizer.")
+
+
+(opts, args) = op.parse_args()
+if len(args) > 0:
+    op.error("this script takes no arguments.")
+    sys.exit(1)
+
+print(__doc__)
+op.print_help()
+print()
+
+
+###############################################################################
+# Load some categories from the training set
+if opts.all_categories:
+    categories = None
+else:
+    categories = [
+        'no harm',
+        'low harm',
+        'moderate harm',
+        'severe harm',
+        'death',
+    ]
+
+print("Loading patient safety incident dataset for categories:")
+print(categories if categories else "all")
+
+#data_train = fetch_20newsgroups(subset='train', categories=categories,
+#                                shuffle=True, random_state=42)
+
+#data_test = fetch_20newsgroups(subset='test', categories=categories,
+#shuffle=True, random_state=42)
+
+data_train = sklearn.datasets.load_files("training1balanced")
+data_test = sklearn.datasets.load_files("testing1")
+
+
+print('data loaded')
+
+categories = data_train.target_names    # for case categories == None
+
+
+def size_mb(docs):
+    return sum(len(s.encode('utf-8')) for s in docs) / 1e6
+
+data_train_size_mb = size_mb(data_train.data)
+data_test_size_mb = size_mb(data_test.data)
+
+print("%d documents - %0.3fMB (training set)" % (
+    len(data_train.data), data_train_size_mb))
+print("%d documents - %0.3fMB (training set)" % (
+    len(data_test.data), data_test_size_mb))
+print("%d categories" % len(categories))
+print()
+
+# split a training set and a test set
+y_train, y_test = data_train.target, data_test.target
+
+print("Extracting features from the training dataset using a sparse vectorizer")
+t0 = time()
+if opts.use_hashing:
+    vectorizer = HashingVectorizer(stop_words='english', non_negative=True,
+                                   n_features=opts.n_features)
+    X_train = vectorizer.transform(data_train.data)
+else:
+    vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5,
+                                 stop_words='english')
+    X_train = vectorizer.fit_transform(data_train.data)
+duration = time() - t0
+print("done in %fs at %0.3fMB/s" % (duration, data_train_size_mb / duration))
+print("n_samples: %d, n_features: %d" % X_train.shape)
+print()
+
+print("Extracting features from the test dataset using the same vectorizer")
+t0 = time()
+X_test = vectorizer.transform(data_test.data)
+duration = time() - t0
+print("done in %fs at %0.3fMB/s" % (duration, data_test_size_mb / duration))
+print("n_samples: %d, n_features: %d" % X_test.shape)
+print()
+
+if opts.select_chi2:
+    print("Extracting %d best features by a chi-squared test" %
+          opts.select_chi2)
+    t0 = time()
+    ch2 = SelectKBest(chi2, k=opts.select_chi2)
+    X_train = ch2.fit_transform(X_train, y_train)
+    X_test = ch2.transform(X_test)
+    print("done in %fs" % (time() - t0))
+    print()
+
+
+def trim(s):
+    """Trim string to fit on terminal (assuming 80-column display)"""
+    return s if len(s) <= 80 else s[:77] + "..."
+
+
+# mapping from integer feature name to original token string
+if opts.use_hashing:
+    feature_names = None
+else:
+    feature_names = np.asarray(vectorizer.get_feature_names())
+
+
+###############################################################################
+# Benchmark classifiers
+def benchmark(clf):
+    print('_' * 80)
+    print("Training: ")
+    print(clf)
+    t0 = time()
+    clf.fit(X_train, y_train)
+    train_time = time() - t0
+    print("train time: %0.3fs" % train_time)
+
+    t0 = time()
+    pred = clf.predict(X_test)
+    test_time = time() - t0
+    print("test time:  %0.3fs" % test_time)
+
+    score = metrics.f1_score(y_test, pred)
+    print("f1-score:   %0.3f" % score)
+
+    if hasattr(clf, 'coef_'):
+#        print("dimensionality: %d" % clf.coef_.shape[1])
+        print("density: %f" % density(clf.coef_))
+
+        if opts.print_top10 and feature_names is not None:
+            print("top 10 keywords per class:")
+            for i, category in enumerate(categories):
+                top10 = np.argsort(clf.coef_[i])[-10:]
+                print(trim("%s: %s"
+                      % (category, " ".join(feature_names[top10]))))
+        print()
+
+    if opts.print_report:
+        print("classification report:")
+        print(metrics.classification_report(y_test, pred,
+                                            target_names=categories))
+
+    if opts.print_cm:
+        print("confusion matrix:")
+        print(metrics.confusion_matrix(y_test, pred))
+
+    print()
+    clf_descr = str(clf).split('(')[0]
+    return clf_descr, score, train_time, test_time
+
+
+results = []
+for clf, name in (
+        (RidgeClassifier(tol=1e-2, solver="lsqr"), "Ridge Classifier"),
+        (Perceptron(n_iter=50), "Perceptron"),
+        (PassiveAggressiveClassifier(n_iter=50), "Passive-Aggressive"),
+        (KNeighborsClassifier(n_neighbors=10), "kNN")):
+    print('=' * 80)
+    print(name)
+    results.append(benchmark(clf))
+
+for penalty in ["l2", "l1"]:
+    print('=' * 80)
+    print("%s penalty" % penalty.upper())
+    # Train Liblinear model
+    results.append(benchmark(LinearSVC(loss='l2', penalty=penalty,
+                                            dual=False, tol=1e-3)))
+
+    # Train SGD model
+    results.append(benchmark(SGDClassifier(alpha=.0001, n_iter=50,
+                                           penalty=penalty)))
+
+# Train SGD with Elastic Net penalty
+print('=' * 80)
+print("Elastic-Net penalty")
+results.append(benchmark(SGDClassifier(alpha=.0001, n_iter=50,
+                                       penalty="elasticnet")))
+
+# Train NearestCentroid without threshold
+print('=' * 80)
+print("NearestCentroid (aka Rocchio classifier)")
+results.append(benchmark(NearestCentroid()))
+
+# Train sparse Naive Bayes classifiers
+print('=' * 80)
+print("Naive Bayes")
+results.append(benchmark(MultinomialNB(alpha=.01)))
+results.append(benchmark(BernoulliNB(alpha=.01)))
+
+
+class L1LinearSVC(LinearSVC):
+
+    def fit(self, X, y):
+        # The smaller C, the stronger the regularization.
+        # The more regularization, the more sparsity.
+        self.transformer_ = LinearSVC(penalty="l1",
+                                      dual=False, tol=1e-3)
+        X = self.transformer_.fit_transform(X, y)
+        return LinearSVC.fit(self, X, y)
+
+    def predict(self, X):
+        X = self.transformer_.transform(X)
+        return LinearSVC.predict(self, X)
+
+print('=' * 80)
+print("LinearSVC with L1-based feature selection")
+results.append(benchmark(L1LinearSVC()))
+
+
+# make some plots
+
+indices = np.arange(len(results))
+
+results = [[x[i] for x in results] for i in range(4)]
+
+clf_names, score, training_time, test_time = results
+training_time = np.array(training_time) / np.max(training_time)
+test_time = np.array(test_time) / np.max(test_time)
+
+pl.title("Score")
+pl.barh(indices, score, .2, label="score", color='r')
+pl.barh(indices + .3, training_time, .2, label="training time", color='g')
+pl.barh(indices + .6, test_time, .2, label="test time", color='b')
+pl.yticks(())
+pl.legend(loc='best')
+pl.subplots_adjust(left=.25)
+
+for i, c in zip(indices, clf_names):
+    pl.text(-.3, i, c)
+
+pl.show()
+\end{pyverbatim}
+
+\subsection{randomselect.py}
+\label{randomselect.py}
+\begin{pyverbatim}
+#select random sample of incidents for balancing
+#randomselect.py
+
+import os
+import random
+
+#open text file containing items that aren't deaths 
+#and severes from the training set
+listfile = open('list.txt', 'rb') 
+
+#load items (incident files)in text file as a list
+allitems = [row for row in listfile] 
+
+mylist = allitems #call it mylist
+
+rand_smpl = [ mylist[i] for i in sorted(random.sample(xrange(len(mylist)), 51)) ] 
+#select a random sample of 51 incidents from the list 
+#(because we're balancing with incidents that are deaths and severes and 
+#there are 51 deaths and severes in the training set)
+
+#open a file to write our random selection of 51 incidents to
+f = open('randlist.txt', 'w') 
+for item in rand_smpl:
+     print>>f, item
+    
+f.close()
+\end{pyverbatim}
+
+\subsection{incidentclassify.py}
+\label{incident_classify.py}
+\begin{pyverbatim}
+#incident severity classifier
+#incidenclassify.py
+
+
+import sklearn
+from sklearn import *
+
+from nltk import word_tokenize          
+from nltk.stem import WordNetLemmatizer 
+class LemmaTokenizer(object):
+    def __init__(self):
+         self.wnl = WordNetLemmatizer()
+    def __call__(self, doc):
+         return [self.wnl.lemmatize(t) for t in word_tokenize(doc)]
+
+
+#load incidents from folder called container which contains incidents 
+#in appropriate category subfolders into an sklearn "bunch"
+computer_incidents_training = sklearn.datasets.load_files("training")
+computer_incidents_testing = sklearn.datasets.load_files("testing")
+
+#CountVectorizer converts a collection of text documents into a matrix 
+#of token counts. By default words are tokenized.
+
+from sklearn.feature_extraction.text import CountVectorizer
+count_vect = CountVectorizer()
+X_counts = count_vect.fit_transform(computer_incidents_training.data)
+
+#term occurances (X_counts) fails to take account of document size. 
+#Longer documents may have higher average count values than shorter 
+#ones even though they talk about the same topic. 
+#To avoid this the number of occurrences in any document is divided 
+#by the total number of words in that document to give the 
+#Term Frequency (tf).
+
+from sklearn.feature_extraction.text import TfidfTransformer
+tf_transformer = TfidfTransformer(use_idf=False).fit(X_counts)
+X_counts_tf = tf_transformer.transform(X_counts)
+
+#a further refinement is to downscale the weighting of words that 
+#occur in many documents in the corpus and are therefore less 
+#informative than words only occurring in a small portion of the corpus. 
+#This is results in the term frequency inverse document frequency 
+#measure (tf-idf).
+
+tfidf_transformer = TfidfTransformer()
+X_counts_tfidf = tf_transformer.fit_transform(X_counts)
+#print X_counts_tfidf.shape for error checking, 
+#prints number of samples and number of features
+
+print X_counts_tfidf.shape
+
+#ready train up a classifier and evaluate performance :-)
+
+from sklearn.naive_bayes import MultinomialNB
+clf = MultinomialNB().fit(X_counts_tfidf, computer_incidents_training.target)
+
+#test case with an incident
+docs_new = ["""Main A / E Radioogy Viewing Area Computers are soooo slow , 
+and getting slowing throughout the day . Impacting on patient through - put 
+and accurate recording of patient exam times ."""]
+
+X_new_counts = count_vect.transform(docs_new)
+X_new_tfidf = tfidf_transformer.fit_transform(X_new_counts)
+
+predicted = clf.predict(X_new_tfidf)
+
+for doc, category in zip(docs_new, predicted):
+    print '%r => %s' % (doc, computer_incidents_training.target_names[category])
+
+#test case using a pipe
+from sklearn.pipeline import Pipeline
+text_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', MultinomialNB()),
+    ])
+
+_ = text_clf.fit(computer_incidents_training.data, computer_incidents_training.target)
+
+predicted = _.predict(docs_new)
+for doc, category in zip(docs_new, predicted):
+        print '%r => %s' % (doc, computer_incidents_training.target_names[category])
+
+import numpy as np
+
+docs_test = computer_incidents_testing.data
+predicted = text_clf.predict(docs_test)
+print np.mean(predicted == computer_incidents_testing.target) 
+#prints accuracy of the model
+
+from sklearn import metrics
+print metrics.classification_report(
+    computer_incidents_testing.target, predicted,
+    target_names = computer_incidents_testing.target_names) 
+#prints precision, f1 and support of the model
+
+
+
+from sklearn.linear_model import SGDClassifier
+text_clf = Pipeline([
+     ('vect', CountVectorizer()),
+     ('tfidf', TfidfTransformer()),
+     ('clf', SGDClassifier(loss='hinge', penalty='l2',
+                           alpha=1e-3, n_iter=5)),
+])
+_ = text_clf.fit(computer_incidents_training.data, computer_incidents_training.target)
+predicted = text_clf.predict(docs_test)
+print np.mean(predicted == computer_incidents_testing.target)
+#prints accuracy of the model
+
+from sklearn import metrics
+print metrics.classification_report(
+    computer_incidents_testing.target, predicted,
+    target_names = computer_incidents_testing.target_names) 
+#prints precision, f1 and support of the model
+
+
+print metrics.confusion_matrix(computer_incidents_testing.target, predicted)
+
+#optimize parameters from grid search
+from sklearn.linear_model import SGDClassifier
+text_clf = Pipeline([
+     ('vect', CountVectorizer(max_df=1.0, max_features=None, ngram_range=(1, 2))),
+     ('tfidf', TfidfTransformer(norm='l1', use_idf=True )),
+     ('clf', SGDClassifier(loss='hinge', penalty='l2',
+                          alpha=1e-05, n_iter=80)),
+])
+_ = text_clf.fit(computer_incidents_training.data, computer_incidents_training.target)
+predicted = text_clf.predict(docs_test)
+print np.mean(predicted == computer_incidents_testing.target)#prints accuracy of the model
+
+from sklearn import metrics
+print metrics.classification_report(
+    computer_incidents_testing.target, predicted,
+    target_names = computer_incidents_testing.target_names) 
+#prints precision, f1 and support of the model
+
+predicted = text_clf.predict(docs_test)
+
+print np.mean(predicted == computer_incidents_testing.target)
+#prints accuracy of the model
+
+print metrics.confusion_matrix(computer_incidents_testing.target, predicted)
+
+#optimize parameters from grid search
+from sklearn.linear_model import SGDClassifier
+text_clf = Pipeline([
+     ('vect', CountVectorizer(max_df=1.0, max_features=None, ngram_range=(1, 2), tokenizer=LemmaTokenizer())),
+     ('tfidf', TfidfTransformer(norm='l1', use_idf=True )),
+     ('clf', SGDClassifier(loss='hinge', penalty='l2',
+                           alpha=1e-05, n_iter=80)),
+])
+_ = text_clf.fit(computer_incidents_training.data, computer_incidents_training.target)
+predicted = text_clf.predict(docs_test)
+print np.mean(predicted == computer_incidents_testing.target)
+#prints accuracy of the model
+
+from sklearn import metrics
+print metrics.classification_report(computer_incidents_testing.target, predicted,
+target_names = computer_incidents_testing.target_names) 
+#prints precision, f1 and support of the model
+
+predicted = text_clf.predict(docs_test)
+
+print np.mean(predicted == computer_incidents_testing.target)
+#prints accuracy of the model
+
+print metrics.confusion_matrix(computer_incidents_testing.target, predicted)
+
+#optimize parameters from grid search
+from sklearn.linear_model import SGDClassifier
+text_clf = Pipeline([
+     ('vect', CountVectorizer(max_df=1.0, max_features=None, ngram_range=(1, 2), tokenizer=LemmaTokenizer())),
+     ('tfidf', TfidfTransformer(norm='l1', use_idf=True )),
+     ('clf', SGDClassifier(loss='hinge', penalty='l2',
+                           alpha=1e-05, n_iter=80, class_weight='auto')),
+])
+_ = text_clf.fit(computer_incidents_training.data, computer_incidents_training.target)
+predicted = text_clf.predict(docs_test)
+print np.mean(predicted == computer_incidents_testing.target)
+#prints accuracy of the model
+
+from sklearn import metrics
+print metrics.classification_report(computer_incidents_testing.target, predicted,
+target_names = computer_incidents_testing.target_names) 
+#prints precision, f1 and support of the model
+
+predicted = text_clf.predict(docs_test)
+
+print np.mean(predicted == computer_incidents_testing.target)
+#prints accuracy of the model
+
+print metrics.confusion_matrix(computer_incidents_testing.target, predicted)
+
+\end{pyverbatim}
+
+\subsection{gridsearch.py}
+\label{gridsearch.py}
+\begin{pyverbatim}
+ 
+#grid search example adapted to run on computer problem data
+#gridsearch.py
+
+"""
+==========================================================
+Sample pipeline for text feature extraction and evaluation
+==========================================================
+
+The dataset used in this example is the 20 newsgroups dataset which will be
+automatically downloaded and then cached and reused for the document
+classification example.
+
+You can adjust the number of categories by giving there name to the dataset
+loader or setting them to None to get the 20 of them.
+
+Here is a sample output of a run on a quad-core machine::
+
+  Loading 20 newsgroups dataset for categories:
+  ['alt.atheism', 'talk.religion.misc']
+  1427 documents
+  2 categories
+
+  Performing grid search...
+  pipeline: ['vect', 'tfidf', 'clf']
+  parameters:
+  {'clf__alpha': (1.0000000000000001e-05, 9.9999999999999995e-07),
+   'clf__n_iter': (10, 50, 80),
+   'clf__penalty': ('l2', 'elasticnet'),
+   'tfidf__use_idf': (True, False),
+   'vect__max_n': (1, 2),
+   'vect__max_df': (0.5, 0.75, 1.0),
+   'vect__max_features': (None, 5000, 10000, 50000)}
+  done in 1737.030s
+
+  Best score: 0.940
+  Best parameters set:
+      clf__alpha: 9.9999999999999995e-07
+      clf__n_iter: 50
+      clf__penalty: 'elasticnet'
+      tfidf__use_idf: True
+      vect__max_n: 2
+      vect__max_df: 0.75
+      vect__max_features: 50000
+
+"""
+print __doc__
+
+# Author: Olivier Grisel <olivier.grisel@ensta.org>
+#         Peter Prettenhofer <peter.prettenhofer@gmail.com>
+#         Mathieu Blondel <mathieu@mblondel.org>
+# License: Simplified BSD
+
+from pprint import pprint
+from time import time
+import logging
+import sklearn
+
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.datasets import load_files #allow to use my data
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.linear_model import SGDClassifier
+from sklearn.grid_search import GridSearchCV
+from sklearn.pipeline import Pipeline
+
+# Display progress logs on stdout
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(message)s')
+
+
+###############################################################################
+# Load some categories from the training set
+categories = [
+    'alt.atheism',
+    'talk.religion.misc',
+]
+# Uncomment the following to do the analysis on all the categories
+#categories = None
+
+print "Loading 20 newsgroups dataset for categories:"
+print categories
+
+#data = fetch_20newsgroups(subset='train', categories=categories)
+data = sklearn.datasets.load_files("training") #make read my data
+
+print "%d documents" % len(data.filenames)
+print "%d categories" % len(data.target_names)
+print
+
+###############################################################################
+# define a pipeline combining a text feature extractor with a simple
+# classifier
+pipeline = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', SGDClassifier()),
+])
+
+parameters = {
+    # uncommenting more parameters will give better exploring power but will
+    # increase processing time in a combinatorial way
+    'vect__max_df': (0.5, 0.75, 1.0),
+    'vect__max_features': (None, 5000, 10000, 50000),
+    'vect__ngram_range': ((1, 1), (1, 2)),  # unigrams or bigrams
+    'tfidf__use_idf': (True, False),
+    'tfidf__norm': ('l1', 'l2'),
+    'clf__alpha': (0.00001, 0.000001),
+    'clf__penalty': ('l2', 'elasticnet'),
+    'clf__n_iter': (10, 50, 80),
+}
+
+if __name__ == "__main__":
+    # multiprocessing requires the fork to happen in a __main__ protected
+    # block
+
+    # find the best parameters for both the feature extraction and the
+    # classifier
+    grid_search = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1)
+
+    print "Performing grid search..."
+    print "pipeline:", [name for name, _ in pipeline.steps]
+    print "parameters:"
+    pprint(parameters)
+    t0 = time()
+    grid_search.fit(data.data, data.target)
+    print "done in %0.3fs" % (time() - t0)
+    print
+
+    print "Best score: %0.3f" % grid_search.best_score_
+    print "Best parameters set:"
+    best_parameters = grid_search.best_estimator_.get_params()
+    for param_name in sorted(parameters.keys()):
+        print "\t%s: %r" % (param_name, best_parameters[param_name])
+
+\end{pyverbatim}
+
+\subsection{Python brewery script}
+\label{brewery_script.py}
+\begin{pyverbatim}
+ #audits csv file for field completion
+ #brewery_script.py
+
+import brewery
+from sys import argv
+
+script, inputfilename = argv
+
+b = brewery.create_builder()
+b.csv_source("%s" % inputfilename)
+b.audit()
+
+b.pretty_printer()
+
+b.stream.run()
+
+\end{pyverbatim}
+
+%\begin{minted}{python}
+%import brewery
+
+%b = brewery.create_builder()
+%b.csv_source("computer_problems.csv")
+%b.audit()
+
+%f = b.fork()
+%f.csv_target("computer_problems_audit.csv")
+
+%b.pretty_printer()
+%b.stream.run()      
+%\end{minted}
+
+%\subsection{Lexical analysis with NLTK}
+%\begin{itemize}
+% \item lexicalanalysis.py 
+% \item unableanalysis.py
+% \item graphtest.py       
+%\end{itemize}
+
+%\subsection{Collocations}
+%collocation.py 
+
+%\subsection{Chunking}  
+%\begin{itemize}
+% \item chunkanalysis.py  
+% \item chunking.py     
+% \item chunking2.py        
+% \item chunking3.py 
+% \item chunking4.py      
+%\end{itemize}
+     
+
+%\subsection{POS tagging}
+%\begin{itemize}
+% \item postagging.py
+% \item postagging2.py
+%\end{itemize}
+
+
+%\subsection{File preparation for Carrot2}
+%csvtoxml.py
+
+%\chapter{Solr configuration files}
+%\label{solrconfig}
+%provided separately

@@ -1,0 +1,94 @@
+%graphics
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{pslatex}
+\usepackage{pstricks}
+
+%math equations
+\usepackage{amsmath}
+
+%python code
+%\usepackage{minted}
+
+%headers
+\usepackage{fancyhdr}
+\setlength{\headheight}{15.2pt}
+%\pagestyle{fancy} is set in details.tex because I wish headers to begin after contents
+
+%display URLS
+\usepackage{url}
+
+%hyperlinks
+\usepackage{hyperref}
+
+%comments
+\usepackage{verbatim} 
+
+%nice tables
+\usepackage{booktabs}
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+
+%multi rows for the nice tables
+\usepackage{multirow} 
+
+%nice diplay of code
+%\usepackage{minted}
+
+%nice references
+\usepackage[super]{natbib}
+
+%some maths
+\usepackage{amsmath}
+
+%line spacing
+\renewcommand{\baselinestretch}{1.5} 
+
+%margins
+\usepackage{geometry}
+\geometry{verbose,a4paper,tmargin=25mm,bmargin=25mm,lmargin=40mm,rmargin=25mm}
+
+%glossary
+\usepackage[toc]{glossaries}
+\makeglossary
+
+%pythontex
+%pythontex
+% Engine-specific settings
+% Detect pdftex/xetex/luatex, and load appropriate font packages.
+% This is inspired by the approach in the iftex package.
+% pdftex:
+\expandafter\ifx\csname pdfmatch\endcsname\relax
+\else
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+\fi
+% xetex:
+\expandafter\ifx\csname XeTeXinterchartoks\endcsname\relax
+\else
+    \usepackage{fontspec}
+    \defaultfontfeatures{Ligatures=TeX}
+\fi
+% luatex:
+\expandafter\ifx\csname directlua\endcsname\relax
+\else
+    \usepackage{fontspec}
+\fi
+% End engine-specific settings
+
+
+\usepackage[makestderr]{pythontex}
+\restartpythontexsession{\thesection}
+
+
+\usepackage[framemethod=TikZ]{mdframed}
+
+\newcommand{\pytex}{Python\TeX}
+\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
+
+%misc
+%\def\naive{na\"\i ve}
+%\def\Naive{Na\"\i ve}
+
+%misc
+%\def\naive{na\"\i ve}
+%\def\Naive{Na\"\i ve}

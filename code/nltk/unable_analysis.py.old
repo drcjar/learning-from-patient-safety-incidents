@@ -1,0 +1,32 @@
+import nltk
+
+raw = open('computers.csv').read()
+
+tokens = nltk.wordpunct_tokenize(raw)
+
+text = nltk.Text(tokens)
+
+text.concordance("unable", width=40, lines=100)
+
+text.findall("<unable><to><.*><.*>")
+
+words = [w.lower() for w in text]
+
+c = nltk.ConcordanceIndex(text.tokens)
+
+unableset = [text.tokens[offset+2] for offset in c.offsets('unable')]
+
+print len(unableset)
+
+words = [w.lower() for w in unableset]
+
+vocab = sorted(set(words))
+
+print len(vocab)
+
+fdist = nltk.FreqDist(unableset)
+
+fdist.plot(50, cumulative=False)
+
+print vocab
+

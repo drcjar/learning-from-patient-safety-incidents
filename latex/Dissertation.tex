@@ -1,0 +1,64 @@
+\documentclass[a4paper,12pt]{report}
+
+\input{setup.tex}
+\input{details.tex}
+\input{glossary.tex}
+
+
+\part{Background}
+\label{Background}
+\input{introduction.tex}
+\input{litreview.tex}
+
+\part{Method}
+\label{Method}
+\input{dataanalysis.tex}
+
+\part{Results}
+\label{Results}
+\input{results.tex}
+\input{discussion.tex}
+
+\part{Conclusion}
+\label{Conclusion}	
+\input{conclusion.tex}
+
+\part{Appendix}
+\input{appendix.tex}
+
+%to compile need to 1. XeLatex 2. makeglossaries Dissertation 3. pythontex Dissertation.tex 4. XeLatex again
+
+%add more code to analysis
+%update abstract
+%review other notes
+
+
+%new deadline 31st of July
+
+%DM and NRLS be consistent
+
+%health it capitalization inconsistent	
+  
+%shortcomings of taxonomy classification approach to understanding the world
+
+%pos pic? desc
+
+%tense inconsistent
+
+%comment check pass inc jabrefjb
+
+%remove svm mentionh
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+ \def\@biblabel#1{#1}
+\makeatother
+%%%%%%%% gets rid of bracket around numbers in bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{unsrtnat}
+\bibliography{dissertation}
+
+
+
+\end{document}

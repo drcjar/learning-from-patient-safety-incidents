@@ -1,0 +1,17 @@
+\section{Data cleaning}
+
+The source data for ``computer problem'' extract are incident reports which are completed by individual health care professionals and submitted electronically. Duplicate report submission and submission of reports with missing data is possible and it was therefore important to deduplicate the data and establish its quality.
+
+\section{Deduplication}
+google-refine\cite{huynhgoogle} was used to remove duplicates by faceting on the incident description free text field (IN07). 
+
+\section{Reconciliation}
+Reconciliation was not carried out for time reasons although google-refine\cite{huynhgoogle} does support this. This would have been helpful for correcting spellings and handling acronyms and synonyms.
+
+\section{Establishing data quality}
+google-refine\cite{huynhgoogle} was used to establish median field length and number of words per field using the Google Refine Expression Language (GREL). The Python Brewery\cite{pythonbrewery} module was used to calculate field completeness for the data set:\ref{breweryscript}
+
+%\input{brewery.tex}
+
+%\section detecting disguised missing data %\cite{Belen2011}
+
