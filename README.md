@@ -6,7 +6,7 @@ Masters of Science in Health Informatics
 University College London
 December 2013
 
-You can download and read the pdf
+You can download and read the pdf (by right clicking and saving as)
 [here](https://github.com/drcjar/learning-from-patient-safety-incidents/blob/master/Dissertation.pdf)
 
 Learning from patient safety incidents: can data mining help?
