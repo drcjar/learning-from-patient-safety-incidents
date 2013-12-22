@@ -17,8 +17,7 @@ Background
 To reduce preventable harm to patients health care professionals
 report unexpected events that harm, or nearly harm, patients. In England and
 Wales, the National Health Service (NHS) provides standardized patient safety
-incident report forms for this purpose which are collated nationally by the Na-
-tional Reporting and Learning System (NRLS). To date over seven million patient
+incident report forms for this purpose which are collated nationally by the National Reporting and Learning System (NRLS). To date over seven million patient
 safety incidents have been reported to the NRLS. The magnitude of this dataset
 presents a major challenge for the NRLS analytic team. Two key analytic tasks
 are:
@@ -26,8 +25,7 @@ are:
 inform prevention strategies
 2. To classify the severity of incidents occurring in order to prioritize and
 target remedial efforts
-Data Mining(DM), a process that includes the use of machine learning algo-
-rithms, is emerging as a useful analysis technique in a diverse range of endeavours
+Data Mining(DM), a process that includes the use of machine learning algorithms, is emerging as a useful analysis technique in a diverse range of endeavours
 that involve large datasets. DM techniques are not yet routinely used in opera-
 tional patient safety systems but they have shown promise as an analytic tool in
 a variety of patient safety research settings.
@@ -46,10 +44,8 @@ classifier.
 Incidents reported as occurring between 1st January 2002 and 1st March 2012
 and classified as concerning computer systems were extracted from the NRLS
 database.
-Data were cleaned and selected fields (incident free text description and sever-
-ity of incident) were converted to csv and xml data formats for subsequent analysis
-using Apache Solr, Scikit-learn and NLTK (csv), and Carrot2 (xml). Preprocess-
-ing techniques including stemming, tokenization, tagging, and filtering.
+Data were cleaned and selected fields (incident free text description and severity of incident) were converted to csv and xml data formats for subsequent analysis
+using Apache Solr, Scikit-learn and NLTK (csv), and Carrot2 (xml). Preprocessing techniques including stemming, tokenization, tagging, and filtering.
 Extracted data were audited using Python Brewery and validated by searching
 for known patterns of interest using Grep, Google Refine, and Apache Solr. Data
 were loaded into NLTK for lexical analysis, Apache Solr to search for strings of
@@ -62,8 +58,7 @@ strategy and evaluated using cross validation.
 
 Results
 ===
-Between 1st January 2002 and 1st March 2012 7273 incidents were clas-
-sified by NPSA staff as belonging to “Infrastructure (including staffing, facilities,
+Between 1st January 2002 and 1st March 2012 7273 incidents were classified by NPSA staff as belonging to “Infrastructure (including staffing, facilities,
 environment)” (incident category level 1) and “IT / telecommunications failure /
 overload” (incident category level 2) categories. Incidents reported to have caused
 no harm were the most common (n = 5982). Incidents causing death (n = 7) or
@@ -77,8 +72,7 @@ unable to carry out a task because of computer systems failure, and problems
 relating to hospital bleep system failure were identified as themes using the lingo
 clustering algorithm.
 Optimised NB and SGD incident severity classifiers performed similarly at
-predicting incident severity class from free text incident descriptions. NB classi-
-fier: precision = 0.76, recall = 0.83, f1-score = 0.77. SGD classifier: precision =
+predicting incident severity class from free text incident descriptions. NB classifier: precision = 0.76, recall = 0.83, f1-score = 0.77. SGD classifier: precision =
 0.78, recall = 0.84, f1-score = 0.77.
 
 Conclusion 
