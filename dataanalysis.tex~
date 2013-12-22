@@ -191,3 +191,8 @@ Parameters for MultinomialNB and SGDClassifier were optimized using a the scikit
 Classifier performance was measured by cross validation. The dataset is split into training and testing partitions in a ratio of 2:1. The model is trained on 2/3rds of the labelled data, the training set, and tested against the remaining 1/3rd of the data, the testing set. Partitions are created by random sampling of the dataset. In this way training the classifier on the testing dataset and the resultant problem of overfitting are avoided.
 
 
+
+
+%could add a word list
+%could add code and results
+

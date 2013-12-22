@@ -59,6 +59,77 @@ December 2013\\
 
 
 
+
+\begin{comment}
+
+
+Main question: Can the incident reports tell us extra stuff by using data mining techniques?
+
+Paul away from 17th of August
+consider meeting stats lady
+20,000 words by 31st August
+
+Plan of attack
+
+1. Results :-)
+
+any good to run carrot2 on itself? yes
+
+system 1 and cerner look up
+
+move on
+
+anomoly detection and information extraction (named entity recognition, relationships) in rapidminer
+
+svm classification
+
+
+
+nltk corpus analytics
+
+rapid miner templates
+
+example activity - automated identifcation of severes/deaths
+
+if time: play with rapidminer information extraction plugin and make sure have R plugin working and weka9aa
+http://go-pranab.blogspot.co.uk/
+
+present results nicely and send to paul
+
+crack on
+
+
+2. Method
+3. Discussion
+4. Intro and lit rv - recycle NPSA review of alerts for context
+5. Conclusion
+6. Abstract
+7. Check formatting etc
+
+check mat struture
+
+try another data field e.g steps to prevent field or whatever
+
+worth keeping note of 
+http://stackoverflow.com/questions/10477598/comparing-clustering-results-in-carrot2
+http://www.youtube.com/watch?v=TyZjom46yGA	
+http://onlinelibrary.wiley.com/doi/10.1002/pds.3205/abstract?deniedAccessCustomisedMessage=&userIsAuthenticated=false
+http://www.b-eye-network.com/view/8032
+http://www.youtube.com/watch?v=_8HzwQCFFfw&feature=related
+?phd and mike msc for structure + google?
+
+%other resource pharma, misdiagnosis, tb etc - write up
+
+%consider putting in some logging
+
+%consider attribute selection
+
+http://www-ai.cs.tu-dortmund.de/PublicPublicationFiles/jungermann_2009a.pdf - copy stucture
+
+
+\end{comment}
+
+
 \section*{}
 \mbox{}
 \thispagestyle{empty}
